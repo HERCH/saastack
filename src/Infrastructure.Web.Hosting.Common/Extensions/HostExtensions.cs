@@ -267,6 +267,18 @@ public static class HostExtensions
 
             if (authentication.UsesTokens)
             {
+                authBuilder.AddScheme<PrivateInterHostOptions, PrivateInterHostAuthenticationHandler>(
+                    PrivateInterHostAuthenticationHandler.AuthenticationScheme,
+                    _ => { });
+                services.AddAuthorization(configure =>
+                {
+                    configure.AddPolicy(AuthenticationConstants.Authorization.PrivateInterHostPolicyName, builder =>
+                    {
+                        builder.AddAuthenticationSchemes(PrivateInterHostAuthenticationHandler.AuthenticationScheme);
+                        builder.RequireAuthenticatedUser();
+                    });
+                });
+                
                 var configuration = appBuilder.Configuration;
                 authBuilder.AddJwtBearer(jwtOptions =>
                 {
@@ -382,8 +394,7 @@ public static class HostExtensions
                             Type = SecuritySchemeType.ApiKey,
                             Name = HttpConstants.QueryParams.APIKey,
                             Description =
-                                Resources.HostExtensions_ApiDocumentation_APIKeyQueryDescription.Format(HttpConstants
-                                    .QueryParams
+                                Resources.HostExtensions_ApiDocumentation_APIKeyQueryDescription.Format(HttpConstants.QueryParams
                                     .APIKey),
                             In = ParameterLocation.Query,
                             Scheme = APIKeyAuthenticationHandler.AuthenticationScheme

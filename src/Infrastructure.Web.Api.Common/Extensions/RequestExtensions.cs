@@ -5,7 +5,9 @@ using System.Text.RegularExpressions;
 using System.Web;
 using Common.Extensions;
 using Infrastructure.Web.Api.Interfaces;
+using Infrastructure.Web.Common.Extensions;
 using Infrastructure.Web.Interfaces;
+using Microsoft.IO;
 
 namespace Infrastructure.Web.Api.Common.Extensions;
 
@@ -13,16 +15,7 @@ public static class RequestExtensions
 {
     public const string EmptyRequestJson = "{}";
     private const char RouteSegmentDelimiter = '/';
-
-    /// <summary>
-    ///     Creates a HMAC signature for the specified <see cref="request" />
-    /// </summary>
-    public static string CreateHMACSignature(this IWebRequest request, string secret)
-    {
-        var signer = new HMACSigner(request, secret);
-
-        return signer.Sign();
-    }
+    private static readonly RecyclableMemoryStreamManager MemoryManager = new();
 
     /// <summary>
     ///     Extracts the <see cref="RequestInfo" /> from the <see cref="RouteAttribute" /> declared on the
@@ -116,11 +109,75 @@ public static class RequestExtensions
     }
 
     /// <summary>
+    ///     Sets the HMAC signature header on the specified <see cref="message" /> by signing the body of the specified
+    ///     <see cref="request" />
+    /// </summary>
+    public static void SetPrivateInterHostAuth(this HttpRequestMessage message, IWebRequest request, string secret,
+        string? token = null)
+    {
+        var signature = request.CreateHMACSignature(secret);
+
+        message.Headers.Add(HttpConstants.Headers.PrivateInterHostSignature, signature);
+        if (token.HasValue())
+        {
+            message.SetJWTBearerToken(token);
+        }
+    }
+
+    /// <summary>
+    ///     Sets the HMAC signature header on the specified <see cref="message" /> by signing the body of the specified
+    ///     <see cref="message" />
+    /// </summary>
+    public static void SetPrivateInterHostAuth(this HttpRequestMessage message, string secret,
+        string? token = null)
+    {
+        var signature = message.CreateHMACSignature(secret);
+
+        message.Headers.Add(HttpConstants.Headers.PrivateInterHostSignature, signature);
+        if (token.HasValue())
+        {
+            message.SetJWTBearerToken(token);
+        }
+    }
+
+    /// <summary>
     ///     Returns the <see cref="RequestInfo.Route" /> for the <see cref="request" />
     /// </summary>
     public static string ToUrl(this IWebRequest request)
     {
         return request.GetRequestInfo().Route;
+    }
+
+    /// <summary>
+    ///     Creates a HMAC signature for the specified <see cref="request" />
+    /// </summary>
+    private static string CreateHMACSignature(this IWebRequest request, string secret)
+    {
+        var signer = new HMACSigner(request, secret);
+
+        return signer.Sign();
+    }
+
+    /// <summary>
+    ///     Creates a HMAC signature for the specified <see cref="message" />
+    /// </summary>
+    private static string CreateHMACSignature(this HttpRequestMessage message, string secret)
+    {
+        var bytes = new List<byte>(Encoding.UTF8.GetBytes(EmptyRequestJson));
+        if (message.Content.Exists())
+        {
+            using var stream = MemoryManager.GetStream("HMACSigner");
+            message.Content.CopyTo(stream, null, CancellationToken.None);
+            if (stream.Length > 0)
+            {
+                stream.Seek(0, SeekOrigin.Begin);
+                bytes = [..stream.ToArray()];
+            }
+        }
+
+        var signer = new HMACSigner(bytes.ToArray(), secret);
+
+        return signer.Sign();
     }
 
     private static IWebRequest NullifyRequestFields(Dictionary<string, object?> routeParams,
