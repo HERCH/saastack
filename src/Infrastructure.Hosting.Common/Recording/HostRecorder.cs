@@ -282,7 +282,7 @@ public sealed class HostRecorder : IRecorder, IDisposable
             CrashReporterOption.None => new NoOpCrashReporter(),
             CrashReporterOption.Cloud =>
 #if HOSTEDONPREMISES
-    new LocalCrashReporter(container),
+                new NoOpCrashReporter(),
 #elif HOSTEDONAZURE
                 new ApplicationInsightsCrashReporter(container),
 #elif HOSTEDONAWS
@@ -312,7 +312,7 @@ public sealed class HostRecorder : IRecorder, IDisposable
             MetricReporterOption.None => new NoOpMetricReporter(),
             MetricReporterOption.Cloud =>
 #if HOSTEDONPREMISES
-                new LocalMetricReporter(container),
+                new NoOpMetricReporter(),
 #elif HOSTEDONAZURE
                 new ApplicationInsightsMetricReporter(container),
 #elif HOSTEDONAWS
