@@ -169,29 +169,24 @@ namespace Infrastructure.Persistence.OnPremises {
         }
         
         /// <summary>
-        ///   Busca una cadena traducida similar a The Azure Service Bus subscription name: &apos;{0}&apos; contains illegal characters or is not the correct length.
+        ///   Busca una cadena traducida similar a Invalid RabbitMQ Exchange name: {0}
+        ///  - Allowed characters: a-z, A-Z, 0-9, -, _, ., :
+        ///  - Max length: 255 characters.
         /// </summary>
-        internal static string ValidationExtensions_InvalidMessageBusSubscriptionName {
+        internal static string ValidationExtensions_InvalidRabbitMQExchangeName {
             get {
-                return ResourceManager.GetString("ValidationExtensions_InvalidMessageBusSubscriptionName", resourceCulture);
+                return ResourceManager.GetString("ValidationExtensions_InvalidRabbitMQExchangeName", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Busca una cadena traducida similar a The Azure Service Bus topic name: &apos;{0}&apos; contains illegal characters or is not the correct length.
+        ///   Busca una cadena traducida similar a Invalid RabbitMQ Queue name: {0}
+        ///  - Allowed characters: a-z, A-Z, 0-9, -, _, ., :
+        ///  - Max length: 255 characters.
         /// </summary>
-        internal static string ValidationExtensions_InvalidMessageBusTopicName {
+        internal static string ValidationExtensions_InvalidRabbitMQQueueName {
             get {
-                return ResourceManager.GetString("ValidationExtensions_InvalidMessageBusTopicName", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Busca una cadena traducida similar a The Azure Storage Table/Blob/Queue name: &apos;{0}&apos; contains illegal characters or is not the correct length.
-        /// </summary>
-        internal static string ValidationExtensions_InvalidStorageAccountResourceName {
-            get {
-                return ResourceManager.GetString("ValidationExtensions_InvalidStorageAccountResourceName", resourceCulture);
+                return ResourceManager.GetString("ValidationExtensions_InvalidRabbitMQQueueName", resourceCulture);
             }
         }
     }
