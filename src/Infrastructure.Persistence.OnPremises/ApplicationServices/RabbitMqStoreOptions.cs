@@ -37,4 +37,25 @@ public class RabbitMqStoreOptions
             password: settings.GetString(PasswordSettingName),
             virtualHost: settings.GetString(VirtualHostSettingName));
     }
+
+    public static RabbitMqStoreOptions ParseConnectionString(string connectionString)
+    {
+        var uri = new Uri(connectionString);
+
+        var userInfo = uri.UserInfo.Split(':');
+        var userName = userInfo[0];
+        var password = userInfo.Length > 1 ? userInfo[1] : string.Empty;
+
+        var hostName = uri.Host;
+
+        var virtualHost = uri.AbsolutePath == "/" ? "/" : uri.AbsolutePath.TrimStart('/');
+
+        return new RabbitMqStoreOptions(
+            hostName: hostName,
+            userName: userName,
+            password: password,
+            virtualHost: virtualHost
+        );
+    }
+
 }
