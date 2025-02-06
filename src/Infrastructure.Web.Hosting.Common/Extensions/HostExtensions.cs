@@ -514,49 +514,53 @@ public static class HostExtensions
             services.AddForPlatform<IDataStore, IEventStore, SqlServerStore>(c =>
                 SqlServerStore.Create(c.GetRequiredService<IRecorder>(),
                     SqlServerStoreOptions.Credentials(c.GetRequiredServiceForPlatform<IConfigurationSettings>())));
+
             services.AddForPlatform<IBlobStore>(c =>
                 FileSystemBlobStore.Create(c.GetRequiredService<IRecorder>(),
-                    FileSystemBlobStoreOptions.FromConfiguration(
-                        c.GetRequiredServiceForPlatform<IConfigurationSettings>())));
+                FileSystemBlobStoreOptions.FromConfiguration(c.GetRequiredServiceForPlatform<IConfigurationSettings>())));
+
             services.AddForPlatform<IQueueStore>(c =>
                 RabbitMqQueueStore.Create(c.GetRequiredService<IRecorder>(),
-                    RabbitMqStoreOptions.FromConfiguration(
-                        c.GetRequiredServiceForPlatform<IConfigurationSettings>())));
+                RabbitMqStoreOptions.FromConfiguration(c.GetRequiredServiceForPlatform<IConfigurationSettings>())));
+
             services.AddForPlatform<IMessageBusStore>(c =>
-                RabbitMqStore.Create(c.GetRequiredService<IRecorder>(),
-                    RabbitMqStoreOptions.FromConfiguration(
-                        c.GetRequiredServiceForPlatform<IConfigurationSettings>())));
+                RabbitMQMessageBusStore.Create(c.GetRequiredService<IRecorder>(),
+                RabbitMqStoreOptions.FromConfiguration(c.GetRequiredServiceForPlatform<IConfigurationSettings>())));
 
             if (isMultiTenanted)
             {
                 services.AddPerHttpRequest<IDataStore, IEventStore, SqlServerStore>(c =>
                     SqlServerStore.Create(c.GetRequiredService<IRecorder>(),
-                        SqlServerStoreOptions.Credentials(
-                            c.GetRequiredServiceForPlatform<IConfigurationSettings>())));
+                    SqlServerStoreOptions.Credentials(c.GetRequiredServiceForPlatform<IConfigurationSettings>())));
+
                 services.AddPerHttpRequest<IBlobStore>(c =>
                     FileSystemBlobStore.Create(c.GetRequiredService<IRecorder>(),
                         FileSystemBlobStoreOptions.FromConfiguration(c.GetRequiredService<IConfigurationSettings>())));
+
                 services.AddPerHttpRequest<IQueueStore>(c =>
                     RabbitMqQueueStore.Create(c.GetRequiredService<IRecorder>(),
                         RabbitMqStoreOptions.FromConfiguration(c.GetRequiredService<IConfigurationSettings>())));
+
                 services.AddPerHttpRequest<IMessageBusStore>(c =>
-                    RabbitMqStore.Create(c.GetRequiredService<IRecorder>(),
+                    RabbitMQMessageBusStore.Create(c.GetRequiredService<IRecorder>(),
                         RabbitMqStoreOptions.FromConfiguration(c.GetRequiredService<IConfigurationSettings>())));
             }
             else
             {
                 services.AddSingleton<IDataStore, IEventStore, SqlServerStore>(c =>
                     SqlServerStore.Create(c.GetRequiredService<IRecorder>(),
-                        SqlServerStoreOptions.Credentials(
-                            c.GetRequiredServiceForPlatform<IConfigurationSettings>())));
+                    SqlServerStoreOptions.Credentials(c.GetRequiredServiceForPlatform<IConfigurationSettings>())));
+
                 services.AddSingleton<IBlobStore>(c =>
                     FileSystemBlobStore.Create(c.GetRequiredService<IRecorder>(),
                         FileSystemBlobStoreOptions.FromConfiguration(c.GetRequiredService<IConfigurationSettings>())));
+
                 services.AddSingleton<IQueueStore>(c =>
                     RabbitMqQueueStore.Create(c.GetRequiredService<IRecorder>(),
                         RabbitMqStoreOptions.FromConfiguration(c.GetRequiredService<IConfigurationSettings>())));
+
                 services.AddSingleton<IMessageBusStore>(c =>
-                    RabbitMqStore.Create(c.GetRequiredService<IRecorder>(),
+                    RabbitMQMessageBusStore.Create(c.GetRequiredService<IRecorder>(),
                         RabbitMqStoreOptions.FromConfiguration(c.GetRequiredService<IConfigurationSettings>())));
             }
 #elif HOSTEDONAZURE
